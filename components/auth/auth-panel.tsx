@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { signIn, signOut } from "next-auth/react";
 import { Button, Card, Container, SectionTitle } from "@/components/ui";
 import type { AuthUser } from "@/lib/types";
+import Image from "next/image";
 
 type ProviderStatus = {
   credentials: boolean;
@@ -105,9 +106,16 @@ export function AuthPanel() {
 
   return (
     <Container className="space-y-8 py-12">
-      <SectionTitle title="ログイン / 無料会員登録" subtitle="記事の閲覧は一部ゲストのまま可能です。旅ノート作成や地図機能の利用には会員登録が必要です。" />
+      <SectionTitle
+        eyebrow="FREE MEMBERSHIP"
+        title="ログイン / 無料会員登録"
+        subtitle="記事の閲覧は一部ゲストのまま可能です。旅ノート作成や地図機能の利用には会員登録が必要です。"
+      />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Card className="p-6 md:p-8">
+        <Card className="overflow-hidden p-6 md:p-8">
+          <div className="relative mb-6 aspect-[16/7] overflow-hidden rounded-[28px] bg-[#FFFDF6]">
+            <Image src="/illustrations/card-share.svg" alt="会員登録のイラスト" fill className="object-cover" />
+          </div>
           <div className="mb-6 flex gap-3">
             <button onClick={() => setMode("login")} className={`rounded-full px-5 py-3 text-sm font-bold ${mode === "login" ? "bg-brand-yellow text-brand-text" : "border border-brand-border bg-white text-brand-sub"}`}>
               ログイン
@@ -147,7 +155,10 @@ export function AuthPanel() {
           </form>
           {message ? <p className="mt-4 text-sm text-brand-sub">{message}</p> : null}
         </Card>
-        <Card className="space-y-4 p-6">
+        <Card className="space-y-4 overflow-hidden p-6">
+          <div className="relative -m-6 mb-0 aspect-[16/11] overflow-hidden bg-[#F7FBFF]">
+            <Image src="/illustrations/card-map.svg" alt="会員機能のイラスト" fill className="object-cover" />
+          </div>
           <h2 className="text-2xl font-bold text-brand-text">現在の状態</h2>
           {user ? (
             <>
@@ -191,6 +202,14 @@ function OauthButton({
       onClick={onClick}
       className={`rounded-[24px] border p-4 text-left transition ${enabled ? "border-brand-border bg-white hover:border-brand-yellow hover:bg-[#FFFBEA]" : "cursor-not-allowed border-brand-border/70 bg-brand-bg text-brand-sub"}`}
     >
+      <div className="relative mb-4 aspect-[16/8] overflow-hidden rounded-[20px] bg-[#FFFDF6]">
+        <Image
+          src={label === "Google" ? "/illustrations/card-diary.svg" : label === "X" ? "/illustrations/card-route.svg" : "/illustrations/card-photos.svg"}
+          alt={`${label} ログインのイラスト`}
+          fill
+          className="object-cover"
+        />
+      </div>
       <div className="text-base font-bold text-brand-text">{label}</div>
       <div className="mt-2 text-xs leading-6 text-brand-sub">{enabled ? description : "環境変数を設定すると利用できます"}</div>
     </button>

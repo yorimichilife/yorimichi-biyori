@@ -1,15 +1,14 @@
 import { Instagram, MoveUpRight, Twitter, Facebook } from "lucide-react";
 import { Container } from "@/components/ui";
 import Link from "next/link";
+import { SiteLogo } from "@/components/site-logo";
 
 export function Footer() {
   return (
     <footer className="mt-20 border-t border-brand-border bg-white">
       <Container className="grid gap-10 py-12 md:grid-cols-[1.3fr_repeat(4,1fr)]">
         <div className="space-y-4">
-          <div className="font-accent text-[28px] font-bold tracking-[0.18em] text-brand-text">
-            よりみち日和
-          </div>
+          <SiteLogo size="footer" />
           <p className="max-w-sm text-sm leading-7 text-brand-sub">
             旅の思い出を、日記のように残すサービス。あなたの旅を、あなたらしく。
           </p>

@@ -6,6 +6,7 @@ import { NoteCard } from "@/components/note-card";
 import { Badge, Button, Card, SectionTitle } from "@/components/ui";
 import type { Note, SortOption } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export function BlogBrowser({ notes }: { notes: Note[] }) {
   const [query, setQuery] = useState("");
@@ -34,8 +35,15 @@ export function BlogBrowser({ notes }: { notes: Note[] }) {
   return (
     <section className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
       <aside className="space-y-6">
-        <SectionTitle title="みんなのよりみち" subtitle="旅の思い出や体験を綴った、素敵なよりみち日記を公開しています。行ってみたい場所や旅のヒントがきっと見つかります。" />
+        <SectionTitle
+          eyebrow="PUBLIC YORIMICHI"
+          title="みんなのよりみち"
+          subtitle="旅の思い出や体験を綴った、素敵なよりみち日記を公開しています。行ってみたい場所や旅のヒントがきっと見つかります。"
+        />
         <Card className="overflow-hidden">
+          <div className="relative aspect-[16/10] overflow-hidden bg-[#FFFDF6]">
+            <Image src="/illustrations/card-route.svg" alt="みんなのよりみちのイラスト" fill className="object-cover" />
+          </div>
           <div className="border-b border-brand-border p-5">
             <div className="mb-4 text-lg font-bold">キーワード検索</div>
             <label className="flex h-12 items-center gap-3 rounded-2xl border border-brand-border px-4">
@@ -63,8 +71,11 @@ export function BlogBrowser({ notes }: { notes: Note[] }) {
         </Card>
       </aside>
       <div className="space-y-6">
-        <Card className="overflow-hidden bg-[url('https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center">
-          <div className="bg-white/78 p-8 backdrop-blur-sm">
+        <Card className="overflow-hidden">
+          <div className="relative aspect-[16/7] overflow-hidden">
+            <Image src="/illustrations/card-share.svg" alt="公開よりみちのメインビジュアル" fill className="object-cover" />
+          </div>
+          <div className="bg-white p-8">
             <div className="max-w-lg space-y-4">
               <div className="flex gap-8 text-lg font-medium text-brand-text">
                 {["人気", "新着", "おすすめ"].map((tab, index) => (
@@ -101,6 +112,9 @@ export function BlogBrowser({ notes }: { notes: Note[] }) {
             ))
           ) : (
             <Card className="col-span-full p-8">
+              <div className="relative mb-5 aspect-[16/7] overflow-hidden rounded-[24px] bg-[#FFFDF6]">
+                <Image src="/illustrations/card-diary.svg" alt="公開日記がまだない状態のイラスト" fill className="object-cover" />
+              </div>
               <p className="text-sm leading-7 text-brand-sub">
                 まだ条件に合うよりみち日記がありません。新しい思い出が公開されると、ここに並びます。
               </p>

@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AuthNav } from "@/components/auth/auth-nav";
 import { useEffect, useState } from "react";
+import { SiteLogo } from "@/components/site-logo";
 
 export function Header() {
   const pathname = usePathname();
@@ -22,14 +23,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-brand-border bg-white/90 backdrop-blur">
       <Container className="flex h-[72px] items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3" onClick={() => setMenuOpen(false)}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFF4C3]">
-            <span className="font-accent text-lg font-bold text-[#B88A00]">より</span>
-          </div>
-          <div className="font-accent text-[28px] font-bold tracking-[0.18em] text-brand-text">
-            よりみち日和
-          </div>
-        </Link>
+        <SiteLogo onClick={() => setMenuOpen(false)} />
 
         <nav className="hidden items-center gap-8 lg:flex">
           {navItems.map((item) => {

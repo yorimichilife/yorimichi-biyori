@@ -7,6 +7,7 @@ import { getNotesByUser, getPublicNotes } from "@/lib/notes-store";
 import { getSessionUser } from "@/lib/session";
 import { unstable_noStore as noStore } from "next/cache";
 import { Compass, MapPinned, Route, Sparkles } from "lucide-react";
+import Image from "next/image";
 
 function uniqueStrings(items: string[]) {
   return [...new Set(items.filter(Boolean))];
@@ -64,6 +65,9 @@ export default async function MapPage() {
 
             <div className="grid gap-4">
               <Card className="postcard-grid p-5">
+                <div className="relative mb-4 aspect-[16/9] overflow-hidden rounded-[24px] bg-[#FFFDF6]">
+                  <Image src="/illustrations/card-map.svg" alt="公開スポットのイラスト" fill className="object-cover" />
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF4C3] text-[#B88A00]">
                     <MapPinned className="h-6 w-6" />
@@ -82,6 +86,9 @@ export default async function MapPage() {
                 </div>
               </Card>
               <Card className="p-5">
+                <div className="relative mb-4 aspect-[16/9] overflow-hidden rounded-[24px] bg-[#F6FBFF]">
+                  <Image src="/illustrations/card-route.svg" alt="思い出マップのイラスト" fill className="object-cover" />
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF4FF] text-brand-sky">
                     <Route className="h-6 w-6" />
@@ -119,6 +126,9 @@ export default async function MapPage() {
 
         <section className="grid gap-5 lg:grid-cols-3">
           <Card className="paper-panel p-6">
+            <div className="relative mb-5 aspect-[16/9] overflow-hidden rounded-[24px] bg-[#FFFDF6]">
+              <Image src="/illustrations/card-share.svg" alt="人気のよりみちイラスト" fill className="object-cover" />
+            </div>
             <div className="flex items-center gap-3">
               <Sparkles className="h-5 w-5 text-[#D59A00]" />
               <h2 className="text-xl font-bold text-brand-text">人気のよりみち</h2>
@@ -139,6 +149,9 @@ export default async function MapPage() {
           </Card>
 
           <Card className="paper-panel p-6">
+            <div className="relative mb-5 aspect-[16/9] overflow-hidden rounded-[24px] bg-[#F6FBFF]">
+              <Image src="/illustrations/card-planner.svg" alt="歩いた流れのイラスト" fill className="object-cover" />
+            </div>
             <div className="flex items-center gap-3">
               <Route className="h-5 w-5 text-brand-sky" />
               <h2 className="text-xl font-bold text-brand-text">歩いた流れを残す</h2>
@@ -153,6 +166,9 @@ export default async function MapPage() {
           </Card>
 
           <Card className="paper-panel p-6">
+            <div className="relative mb-5 aspect-[16/9] overflow-hidden rounded-[24px] bg-[#FFFDF6]">
+              <Image src="/illustrations/card-diary.svg" alt="自分の思い出マップのイラスト" fill className="object-cover" />
+            </div>
             <div className="flex items-center gap-3">
               <Compass className="h-5 w-5 text-[#D59A00]" />
               <h2 className="text-xl font-bold text-brand-text">自分の思い出マップ</h2>
