@@ -27,6 +27,7 @@ export default async function HomePage() {
       <Container className="space-y-16 pt-12 md:space-y-20 md:pt-16">
         <section className="space-y-8 md:space-y-10">
           <SectionTitle
+            eyebrow="WHAT YOU CAN DO"
             title="よりみち日和でできること"
             subtitle="よりみちを日記のように思い出へ残し、あとから何度でもやさしく振り返れるように。"
             align="center"
@@ -35,7 +36,7 @@ export default async function HomePage() {
             {featureItems.map((item) => {
               const Icon = icons[item.icon as keyof typeof icons];
               return (
-                <Card key={item.title} className="space-y-4 p-5 text-center md:p-6">
+                <Card key={item.title} className="paper-panel space-y-4 p-5 text-center md:p-6">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF8DD] text-[#D69B00]">
                     <Icon className="h-8 w-8" />
                   </div>
@@ -52,6 +53,7 @@ export default async function HomePage() {
         <section className="space-y-6 md:space-y-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <SectionTitle
+              eyebrow="PICK UP"
               title="ピックアップよりみち"
               subtitle="たくさんの公開日記の中から、今読みたくなるよりみちを集めました。"
             />
@@ -77,6 +79,7 @@ export default async function HomePage() {
         <section className="space-y-6 md:space-y-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <SectionTitle
+              eyebrow="LATEST"
               title="新着のよりみち日記"
               subtitle="新しく公開された思い出を眺めながら、次のよりみちのヒントを探せます。"
             />
@@ -99,8 +102,8 @@ export default async function HomePage() {
           )}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-2">
-          <Card className="overflow-hidden bg-gradient-to-r from-[#FFF5D7] to-[#FFFDF4] p-6 md:p-8">
+        <section className="grid gap-6 xl:grid-cols-3">
+          <Card className="paper-panel overflow-hidden bg-gradient-to-r from-[#FFF5D7] to-[#FFFDF4] p-6 md:p-8">
             <div className="space-y-5">
               <h3 className="font-accent text-3xl font-bold">よりみち日記を書いてみる</h3>
               <p className="max-w-md text-sm leading-7 text-brand-sub">
@@ -109,7 +112,7 @@ export default async function HomePage() {
               <Button href="/notes/new">新しいよりみち日記を書く</Button>
             </div>
           </Card>
-          <Card className="overflow-hidden bg-gradient-to-r from-[#EEF5FF] to-[#FDFCF6] p-6 md:p-8">
+          <Card className="paper-panel overflow-hidden bg-gradient-to-r from-[#EEF5FF] to-[#FDFCF6] p-6 md:p-8">
             <div className="space-y-5">
               <h3 className="font-accent text-3xl font-bold">旅前のしおりも整えられる</h3>
               <p className="max-w-md text-sm leading-7 text-brand-sub">
@@ -120,17 +123,28 @@ export default async function HomePage() {
               </Button>
             </div>
           </Card>
+          <Card className="paper-panel overflow-hidden bg-gradient-to-r from-[#FFFDF4] to-[#F6FBFF] p-6 md:p-8">
+            <div className="space-y-5">
+              <h3 className="font-accent text-3xl font-bold">よりみちマップでたどる</h3>
+              <p className="max-w-md text-sm leading-7 text-brand-sub">
+                公開日記の行き先や、自分の旅先で撮った写真ピンを地図の上で眺めながら、思い出の流れをたどれます。
+              </p>
+              <Button href="/map" variant="secondary">
+                よりみちマップを見る
+              </Button>
+            </div>
+          </Card>
         </section>
 
         <section className="space-y-8 md:space-y-10">
-          <SectionTitle title="使い方はかんたん3ステップ" />
+          <SectionTitle eyebrow="HOW IT WORKS" title="使い方はかんたん3ステップ" />
           <div className="grid gap-6 md:grid-cols-3">
             {[
               ["01", "よりみち日記を書く", "写真やことばで、その日の空気ごと残します。"],
               ["02", "地図やしおりとつなぐ", "歩いた場所や行きたかった場所を、思い出の流れに重ねます。"],
               ["03", "みんなのよりみちへひらく", "公開すると、誰かの次の旅のきっかけにもなります。"]
             ].map(([step, title, body]) => (
-              <Card key={step} className="p-6 md:p-7">
+              <Card key={step} className="paper-panel p-6 md:p-7">
                 <div className="space-y-3">
                   <span className="font-accent text-2xl font-bold text-[#D59A00]">{step}</span>
                   <h3 className="text-2xl font-bold text-brand-text">{title}</h3>

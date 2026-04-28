@@ -1,5 +1,5 @@
 import { Button, Container } from "@/components/ui";
-import { BookOpenText, Globe, Search, Share2 } from "lucide-react";
+import { BookOpenText, Compass, Globe, Search, Share2 } from "lucide-react";
 import type { ReactNode } from "react";
 
 export function Hero() {
@@ -12,9 +12,15 @@ export function Hero() {
             "linear-gradient(90deg, rgba(38,53,71,.56) 0%, rgba(38,53,71,.20) 44%, rgba(38,53,71,.06) 100%), url('https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1800&q=80')"
         }}
       />
+      <div className="absolute -left-12 top-20 h-40 w-40 rounded-full bg-[#F4C400]/20 blur-3xl" />
+      <div className="absolute bottom-10 right-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
       <Container className="relative py-16 text-white md:py-24">
         <div className="max-w-[620px] space-y-8">
           <div className="space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-4 py-2 text-xs font-bold tracking-[0.18em] text-white/92">
+              <Compass className="h-4 w-4" />
+              YORIMICHI DIARY
+            </div>
             <h1 className="font-accent text-4xl font-bold leading-[1.45] md:text-6xl">
               よりみちを、
               <br />
@@ -30,7 +36,7 @@ export function Hero() {
             <Feature icon={<Globe className="h-7 w-7" />} title="みんなのよりみち" subtitle="公開された日記から次の旅に出会う" />
           </div>
         </div>
-        <div className="mt-12 rounded-[28px] border border-white/70 bg-white p-3 shadow-[0_24px_60px_rgba(0,0,0,0.18)] md:rounded-full">
+        <div className="paper-panel mt-12 rounded-[28px] border border-white/70 bg-white p-3 shadow-[0_24px_60px_rgba(0,0,0,0.18)] md:rounded-full">
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <div className="flex flex-1 items-center gap-3 rounded-full px-4 py-3 text-brand-sub md:px-5 md:py-4">
               <Search className="h-5 w-5" />

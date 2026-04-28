@@ -52,6 +52,16 @@ export default async function NoteDetailPage({
           <div className="space-y-4">
             <h1 className="font-accent text-4xl font-bold text-brand-text md:text-5xl">{note.title}</h1>
             <p className="text-lg leading-8 text-brand-sub">{note.summary}</p>
+            <div className="flex flex-wrap gap-3">
+              <Button href="/map" variant="secondary">
+                よりみちマップを見る
+              </Button>
+              {owner ? (
+                <Button href={`/notes/${note.id}/share`} variant="ghost">
+                  共有設定を開く
+                </Button>
+              ) : null}
+            </div>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-brand-sub">
               <span className="inline-flex items-center gap-2">
                 <div className="relative h-8 w-8 overflow-hidden rounded-full">

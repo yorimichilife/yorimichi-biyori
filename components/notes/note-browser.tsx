@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Grid2X2, List, Search, SlidersHorizontal } from "lucide-react";
+import { Compass, Grid2X2, List, Search, SlidersHorizontal } from "lucide-react";
 import { NoteCard } from "@/components/note-card";
 import { Badge, Button } from "@/components/ui";
 import type { Note, SortOption } from "@/lib/types";
@@ -45,6 +45,10 @@ export function NotesBrowser({ notes }: { notes: Note[] }) {
           <p className="text-sm leading-7 text-brand-sub md:text-base">
             旅の途中で出会った風景や気持ちを、日記のようにやさしく残していけます。
           </p>
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF5D7] px-3 py-1 text-xs font-bold tracking-[0.18em] text-[#B88A00]">
+            <Compass className="h-3.5 w-3.5" />
+            MY YORIMICHI DIARY
+          </div>
         </div>
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
           <label className="flex h-12 items-center gap-3 rounded-full border border-brand-border bg-white px-4 md:h-14 md:px-5">
@@ -102,6 +106,9 @@ export function NotesBrowser({ notes }: { notes: Note[] }) {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Badge tone="gray">表示件数 {filtered.length}</Badge>
           <Badge tone="gray">検索語: {query || "なし"}</Badge>
+          <Button href="/map" variant="ghost" className="h-10 px-4 text-sm">
+            よりみちマップへ
+          </Button>
         </div>
       </div>
     </>

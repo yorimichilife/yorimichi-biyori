@@ -24,7 +24,7 @@ export function Card({
   children: ReactNode;
 }) {
   return (
-    <div className={cn("rounded-4xl border border-[#F1F1F1] bg-white shadow-soft", className)}>
+    <div className={cn("rounded-4xl border border-[#F1F1F1] bg-white shadow-soft transition-transform duration-300 ease-out hover:-translate-y-1", className)}>
       {children}
     </div>
   );
@@ -33,14 +33,22 @@ export function Card({
 export function SectionTitle({
   title,
   subtitle,
-  align = "left"
+  align = "left",
+  eyebrow
 }: {
   title: string;
   subtitle?: string;
   align?: "left" | "center";
+  eyebrow?: string;
 }) {
   return (
     <div className={cn("space-y-3", align === "center" && "text-center")}>
+      {eyebrow ? (
+        <div className={cn("inline-flex items-center gap-2 rounded-full bg-[#FFF5D7] px-3 py-1 text-xs font-bold tracking-[0.18em] text-[#B88A00]", align === "center" && "mx-auto")}>
+          <span className="h-2 w-2 rounded-full bg-brand-yellow" />
+          {eyebrow}
+        </div>
+      ) : null}
       <h2 className="font-accent text-3xl font-bold tracking-[0.04em] text-brand-text md:text-4xl">
         {title}
       </h2>
