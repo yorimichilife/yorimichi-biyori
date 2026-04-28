@@ -1,0 +1,37 @@
+{
+  "name": "yorimichi-biyori",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "auth:secret": "node scripts/generate-auth-secret.mjs",
+    "deploy:check": "node scripts/check-deploy-env.mjs",
+    "vercel:preview": "vercel",
+    "vercel:prod": "vercel --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.0",
+    "better-sqlite3": "^12.9.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.511.0",
+    "next": "^15.3.1",
+    "next-auth": "^4.24.14",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.15.17",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "vercel": "^52.0.0"
+  }
+}
