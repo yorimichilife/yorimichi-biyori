@@ -13,6 +13,16 @@ create table if not exists public.users (
 create unique index if not exists idx_users_provider_account
 on public.users (auth_provider, provider_account_id);
 
+create table if not exists public.followings (
+  follower_id text not null references public.users(id) on delete cascade,
+  following_id text not null references public.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (follower_id, following_id)
+);
+
+create index if not exists idx_followings_follower
+on public.followings (follower_id);
+
 create table if not exists public.notes (
   id text primary key,
   slug text not null,

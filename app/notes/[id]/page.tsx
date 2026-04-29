@@ -11,6 +11,8 @@ import { unstable_noStore as noStore } from "next/cache";
 import { CommentForm } from "@/components/forms/comment-form";
 import { ReactionPanel } from "@/components/notes/reaction-panel";
 import { PdfButton } from "@/components/notes/pdf-button";
+import { isFollowingUser } from "@/lib/auth-store";
+import { FollowButton } from "@/components/follow-button";
 
 export default async function NoteDetailPage({
   params
@@ -28,6 +30,8 @@ export default async function NoteDetailPage({
   }
 
   const owner = isNoteOwner(note, user);
+  const canFollow = Boolean(user?.id && note.userId && user.id !== note.userId);
+  const initialFollowing = canFollow ? await isFollowingUser(user!.id, note.userId!) : false;
 
   return (
     <Container className="space-y-8 py-8 md:py-12">
@@ -56,6 +60,9 @@ export default async function NoteDetailPage({
               <Button href="/map" variant="secondary">
                 よりみちマップを見る
               </Button>
+              {canFollow ? (
+                <FollowButton followingId={note.userId!} initialFollowing={initialFollowing} />
+              ) : null}
               {owner ? (
                 <Button href={`/notes/${note.id}/share`} variant="ghost">
                   共有設定を開く

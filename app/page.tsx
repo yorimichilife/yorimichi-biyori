@@ -6,6 +6,9 @@ import { NoteCard } from "@/components/note-card";
 import { getPublicNotes } from "@/lib/notes-store";
 import { unstable_noStore as noStore } from "next/cache";
 import Image from "next/image";
+import { getSessionUser } from "@/lib/session";
+import { getFollowedAuthors, getFollowedUserIds } from "@/lib/auth-store";
+import { HomeTimeline } from "@/components/home-timeline";
 
 const icons = {
   camera: Camera,
@@ -25,15 +28,30 @@ const featureArt = {
 
 export default async function HomePage() {
   noStore();
+  const user = await getSessionUser();
   const publicNotes = await getPublicNotes();
+  const followedUserIds = user ? await getFollowedUserIds(user.id) : [];
+  const followedAuthors = user ? await getFollowedAuthors(user.id) : [];
   const pickupNotes = [...publicNotes].sort((a, b) => b.likes - a.likes).slice(0, 3);
   const latestNotes = [...publicNotes].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 6);
+  const followingNotes = [...publicNotes]
+    .filter((note) => note.userId && followedUserIds.includes(note.userId))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .slice(0, 8);
 
   return (
     <div className="space-y-16 pb-10 md:space-y-20">
       <Hero />
 
       <Container className="space-y-16 pt-12 md:space-y-20 md:pt-16">
+        <HomeTimeline
+          recommended={pickupNotes}
+          latest={latestNotes}
+          following={followingNotes}
+          followedAuthors={followedAuthors}
+          isLoggedIn={Boolean(user)}
+        />
+
         <section className="space-y-8 md:space-y-10">
           <SectionTitle
             eyebrow="WHAT YOU CAN DO"

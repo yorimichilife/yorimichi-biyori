@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import { mkdirSync } from "fs";
 import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from "crypto";
-import { AuthUser } from "@/lib/types";
+import { AuthUser, FollowedAuthor } from "@/lib/types";
 import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabase-server";
 
 type UserRow = {
@@ -20,6 +20,13 @@ type UserRow = {
 declare global {
   var __yorimichiAuthDb: Database.Database | undefined;
 }
+
+type FollowRow = {
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+  user?: UserRow;
+};
 
 function getLocalDb() {
   if (!global.__yorimichiAuthDb) {
@@ -54,6 +61,18 @@ function getLocalDb() {
     db.exec(`
       CREATE UNIQUE INDEX IF NOT EXISTS idx_users_provider_account
       ON users (auth_provider, provider_account_id);
+    `);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS followings (
+        follower_id TEXT NOT NULL,
+        following_id TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (follower_id, following_id)
+      );
+    `);
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_followings_follower
+      ON followings (follower_id);
     `);
     global.__yorimichiAuthDb = db;
   }
@@ -94,6 +113,11 @@ function describeSupabaseAuthError(error: { message?: string; code?: string } | 
     return "Supabase の権限設定で保存できません。service_role key とテーブル設定を確認してください。";
   }
   return fallback;
+}
+
+function isMissingFollowingsTable(error: { message?: string; code?: string } | null | undefined) {
+  const raw = `${error?.code ?? ""} ${error?.message ?? ""}`.toLowerCase();
+  return raw.includes("followings") && (raw.includes("does not exist") || raw.includes("relation"));
 }
 
 async function getSupabaseUserById(id: string) {
@@ -315,4 +339,126 @@ export async function upsertOAuthUser({
   ).run(user);
 
   return mapUser(user);
+}
+
+function mapFollowedAuthor(row: UserRow): FollowedAuthor {
+  return {
+    id: row.id,
+    name: row.name,
+    avatar: row.avatar
+  };
+}
+
+export async function getFollowedUserIds(userId: string) {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseAdmin()!;
+    const { data, error } = await supabase
+      .from("followings")
+      .select("following_id")
+      .eq("follower_id", userId);
+    if (error && isMissingFollowingsTable(error)) {
+      return [];
+    }
+    if (error) {
+      throw new Error("フォロー情報の取得に失敗しました。");
+    }
+    return (data ?? []).map((row: { following_id: string }) => row.following_id);
+  }
+
+  const rows = getLocalDb()
+    .prepare("SELECT following_id FROM followings WHERE follower_id = ?")
+    .all(userId) as Array<{ following_id: string }>;
+  return rows.map((row) => row.following_id);
+}
+
+export async function getFollowedAuthors(userId: string): Promise<FollowedAuthor[]> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseAdmin()!;
+    const ids = await getFollowedUserIds(userId);
+    if (!ids.length) return [];
+    const { data, error } = await supabase.from("users").select("*").in("id", ids);
+    if (error) {
+      throw new Error("フォロー中ユーザーの取得に失敗しました。");
+    }
+    return ((data ?? []) as UserRow[]).map(mapFollowedAuthor);
+  }
+
+  const rows = getLocalDb()
+    .prepare(
+      `SELECT users.*
+       FROM followings
+       JOIN users ON users.id = followings.following_id
+       WHERE followings.follower_id = ?`
+    )
+    .all(userId) as UserRow[];
+  return rows.map(mapFollowedAuthor);
+}
+
+export async function isFollowingUser(followerId: string, followingId: string) {
+  if (followerId === followingId) return false;
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseAdmin()!;
+    const { data, error } = await supabase
+      .from("followings")
+      .select("following_id")
+      .eq("follower_id", followerId)
+      .eq("following_id", followingId)
+      .maybeSingle();
+    if (error && isMissingFollowingsTable(error)) {
+      return false;
+    }
+    if (error) {
+      throw new Error("フォロー状態の確認に失敗しました。");
+    }
+    return Boolean(data);
+  }
+
+  const row = getLocalDb()
+    .prepare("SELECT following_id FROM followings WHERE follower_id = ? AND following_id = ?")
+    .get(followerId, followingId);
+  return Boolean(row);
+}
+
+export async function toggleFollowUser(followerId: string, followingId: string) {
+  if (followerId === followingId) {
+    throw new Error("自分自身をフォローすることはできません。");
+  }
+
+  const currentlyFollowing = await isFollowingUser(followerId, followingId);
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseAdmin()!;
+    if (currentlyFollowing) {
+      const { error } = await supabase
+        .from("followings")
+        .delete()
+        .eq("follower_id", followerId)
+        .eq("following_id", followingId);
+      if (error) throw new Error("フォロー解除に失敗しました。");
+      return { following: false };
+    }
+
+    const { error } = await supabase.from("followings").insert({
+      follower_id: followerId,
+      following_id: followingId,
+      created_at: new Date().toISOString()
+    });
+    if (error && isMissingFollowingsTable(error)) {
+      throw new Error("Supabase の followings テーブルが未作成です。最新の `scripts/supabase-schema.sql` を実行してください。");
+    }
+    if (error) throw new Error("フォローに失敗しました。");
+    return { following: true };
+  }
+
+  const db = getLocalDb();
+  if (currentlyFollowing) {
+    db.prepare("DELETE FROM followings WHERE follower_id = ? AND following_id = ?").run(followerId, followingId);
+    return { following: false };
+  }
+
+  db.prepare("INSERT INTO followings (follower_id, following_id, created_at) VALUES (?, ?, ?)").run(
+    followerId,
+    followingId,
+    new Date().toISOString()
+  );
+  return { following: true };
 }

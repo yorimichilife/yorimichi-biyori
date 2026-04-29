@@ -28,6 +28,12 @@ export type AuthUser = {
   avatar: string;
 };
 
+export type FollowedAuthor = {
+  id: string;
+  name: string;
+  avatar: string;
+};
+
 export type CommentItem = {
   id: string;
   name: string;

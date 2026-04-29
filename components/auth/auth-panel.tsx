@@ -5,6 +5,8 @@ import { signIn, signOut } from "next-auth/react";
 import { Button, Card, Container, SectionTitle } from "@/components/ui";
 import type { AuthUser } from "@/lib/types";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 
 type ProviderStatus = {
   credentials: boolean;
@@ -25,11 +27,13 @@ export function readStoredUser() {
 }
 
 export function AuthPanel() {
+  const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [providers, setProviders] = useState<ProviderStatus>(emptyProviders);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [successState, setSuccessState] = useState<null | "login" | "register">(null);
 
   async function refreshSession() {
     const response = await fetch("/api/auth", { cache: "no-store" });
@@ -41,6 +45,14 @@ export function AuthPanel() {
   useEffect(() => {
     refreshSession();
   }, []);
+
+  useEffect(() => {
+    if (!successState) return;
+    const timer = window.setTimeout(() => {
+      router.push("/notes");
+    }, 1800);
+    return () => window.clearTimeout(timer);
+  }, [router, successState]);
 
   async function submit(formData: FormData) {
     setLoading(true);
@@ -84,6 +96,7 @@ export function AuthPanel() {
     await refreshSession();
     setMessage(mode === "register" ? "無料会員登録が完了しました。" : "ログインしました。");
     setLoading(false);
+    setSuccessState(mode);
     window.dispatchEvent(new Event("yorimichi-auth-changed"));
   }
 
@@ -106,6 +119,21 @@ export function AuthPanel() {
 
   return (
     <Container className="space-y-8 py-12">
+      {successState ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/75 px-4 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-[32px] bg-white p-8 text-center shadow-[0_30px_80px_rgba(0,0,0,0.12)]">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#FFF5D7] text-[#D59A00] animate-[pulse_1.4s_ease-in-out_infinite]">
+              <CheckCircle2 className="h-11 w-11" />
+            </div>
+            <h2 className="font-accent text-3xl font-bold text-brand-text">
+              {successState === "register" ? "会員登録が完了しました" : "ログインできました"}
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-brand-sub">
+              マイページへ移動しています。次のよりみち日記を、ここから育てていきましょう。
+            </p>
+          </div>
+        </div>
+      ) : null}
       <SectionTitle
         eyebrow="FREE MEMBERSHIP"
         title="ログイン / 無料会員登録"
