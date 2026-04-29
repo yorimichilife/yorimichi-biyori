@@ -4,7 +4,19 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Image from "next/image";
-import { CalendarDays, Camera, CheckCircle2, Eye, Globe, Lock, MapPin, PenLine, Plus, Settings2, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  Camera,
+  CheckCircle2,
+  Eye,
+  Globe,
+  Lock,
+  MapPin,
+  PenLine,
+  Plus,
+  Settings2,
+  Trash2
+} from "lucide-react";
 import { Card } from "@/components/ui";
 import type { DayRecord, Note, Privacy } from "@/lib/types";
 
@@ -14,46 +26,163 @@ const coverSamples = [
   "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1400&q=80"
 ];
 
+const prefectures = [
+  "北海道",
+  "青森県",
+  "岩手県",
+  "宮城県",
+  "秋田県",
+  "山形県",
+  "福島県",
+  "茨城県",
+  "栃木県",
+  "群馬県",
+  "埼玉県",
+  "千葉県",
+  "東京都",
+  "神奈川県",
+  "新潟県",
+  "富山県",
+  "石川県",
+  "福井県",
+  "山梨県",
+  "長野県",
+  "岐阜県",
+  "静岡県",
+  "愛知県",
+  "三重県",
+  "滋賀県",
+  "京都府",
+  "大阪府",
+  "兵庫県",
+  "奈良県",
+  "和歌山県",
+  "鳥取県",
+  "島根県",
+  "岡山県",
+  "広島県",
+  "山口県",
+  "徳島県",
+  "香川県",
+  "愛媛県",
+  "高知県",
+  "福岡県",
+  "佐賀県",
+  "長崎県",
+  "熊本県",
+  "大分県",
+  "宮崎県",
+  "鹿児島県",
+  "沖縄県"
+] as const;
+
+const areaByPrefecture: Record<string, string> = {
+  北海道: "北海道・東北",
+  青森県: "北海道・東北",
+  岩手県: "北海道・東北",
+  宮城県: "北海道・東北",
+  秋田県: "北海道・東北",
+  山形県: "北海道・東北",
+  福島県: "北海道・東北",
+  茨城県: "関東",
+  栃木県: "関東",
+  群馬県: "関東",
+  埼玉県: "関東",
+  千葉県: "関東",
+  東京都: "関東",
+  神奈川県: "関東",
+  新潟県: "中部",
+  富山県: "中部",
+  石川県: "中部",
+  福井県: "中部",
+  山梨県: "中部",
+  長野県: "中部",
+  岐阜県: "中部",
+  静岡県: "中部",
+  愛知県: "中部",
+  三重県: "中部",
+  滋賀県: "近畿",
+  京都府: "近畿",
+  大阪府: "近畿",
+  兵庫県: "近畿",
+  奈良県: "近畿",
+  和歌山県: "近畿",
+  鳥取県: "中国・四国",
+  島根県: "中国・四国",
+  岡山県: "中国・四国",
+  広島県: "中国・四国",
+  山口県: "中国・四国",
+  徳島県: "中国・四国",
+  香川県: "中国・四国",
+  愛媛県: "中国・四国",
+  高知県: "中国・四国",
+  福岡県: "九州・沖縄",
+  佐賀県: "九州・沖縄",
+  長崎県: "九州・沖縄",
+  熊本県: "九州・沖縄",
+  大分県: "九州・沖縄",
+  宮崎県: "九州・沖縄",
+  鹿児島県: "九州・沖縄",
+  沖縄県: "九州・沖縄"
+};
+
+function normalizeThemes(value: string) {
+  return value
+    .split(/[,\n、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
   const router = useRouter();
   const isEdit = Boolean(initialNote);
+  const [title, setTitle] = useState(initialNote?.title ?? "");
+  const [startDate, setStartDate] = useState(initialNote?.startDate ?? "");
+  const [endDate, setEndDate] = useState(initialNote?.endDate ?? "");
+  const [prefecture, setPrefecture] = useState(
+    initialNote?.prefecture && prefectures.includes(initialNote.prefecture as (typeof prefectures)[number])
+      ? initialNote.prefecture
+      : ""
+  );
+  const [summary, setSummary] = useState(initialNote?.summary ?? "");
   const [status, setStatus] = useState<Privacy>(initialNote?.status ?? "private");
-  const [coverImage, setCoverImage] = useState(initialNote?.coverImage ?? coverSamples[0]);
+  const [coverImage, setCoverImage] = useState(initialNote?.coverImage || coverSamples[0]);
   const [companions, setCompanions] = useState(initialNote?.companions ?? "");
   const [style, setStyle] = useState(initialNote?.style ?? []);
   const [theme, setTheme] = useState(initialNote?.theme ?? []);
+  const [themeInput, setThemeInput] = useState("");
   const [spots, setSpots] = useState<string[]>(initialNote?.spots ?? []);
   const [spotInput, setSpotInput] = useState("");
-  const [days, setDays] = useState<DayRecord[]>(
-    initialNote?.days?.length
-      ? initialNote.days
-      : []
-  );
-  const [loading, setLoading] = useState(false);
+  const [days, setDays] = useState<DayRecord[]>(initialNote?.days?.length ? initialNote.days : []);
+  const [loadingAction, setLoadingAction] = useState<"draft" | "submit" | null>(null);
   const [error, setError] = useState("");
+
   const pageTitle = useMemo(
     () => (isEdit ? "旅ノートを編集しましょう" : "旅ノートの基本情報を入力しましょう"),
     [isEdit]
   );
 
-  async function submit(formData: FormData, nextStatus?: Privacy) {
-    setLoading(true);
+  async function submit(nextStatus?: Privacy) {
+    const selectedStatus = nextStatus || status;
+    setLoadingAction(selectedStatus === "draft" ? "draft" : "submit");
     setError("");
+
+    const area = areaByPrefecture[prefecture] || "";
     const response = await fetch(isEdit ? `/api/notes/${initialNote?.id}` : "/api/notes", {
       method: isEdit ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: String(formData.get("title") || ""),
-        area: String(formData.get("area") || ""),
-        prefecture: String(formData.get("prefecture") || ""),
-        startDate: String(formData.get("startDate") || ""),
-        endDate: String(formData.get("endDate") || ""),
-        summary: String(formData.get("summary") || ""),
+        title,
+        area,
+        prefecture,
+        startDate,
+        endDate,
+        summary,
         companions,
         coverImage,
         style,
         theme,
-        status: nextStatus || status,
+        status: selectedStatus,
         days,
         spots
       })
@@ -61,10 +190,10 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
     const data = await response.json();
     if (!response.ok) {
       setError(data.message || "保存に失敗しました。");
-      setLoading(false);
+      setLoadingAction(null);
       return;
     }
-    router.push(`/notes/${data.note.id}`);
+    router.push(selectedStatus === "draft" ? "/notes" : `/notes/${data.note.id}`);
     router.refresh();
   }
 
@@ -89,7 +218,7 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
           index === dayIndex
             ? {
                 ...day,
-                photos: day.photos.map((photo, idx) => (idx === photoIndex ? reader.result as string : photo))
+                photos: day.photos.map((photo, idx) => (idx === photoIndex ? (reader.result as string) : photo))
               }
             : day
         )
@@ -109,12 +238,19 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
     setSpotInput("");
   }
 
+  function addThemeValue(value: string) {
+    const normalized = normalizeThemes(value);
+    if (!normalized.length) return;
+    setTheme((prev) => [...new Set([...prev, ...normalized])]);
+    setThemeInput("");
+  }
+
   function addDay() {
     setDays((prev) => [
       ...prev,
       {
         day: prev.length + 1,
-        date: initialNote?.endDate?.replaceAll("-", "/") ?? "",
+        date: endDate ? endDate.replaceAll("-", "/") : "",
         title: "",
         body: "",
         photos: []
@@ -123,8 +259,8 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
-      <Card className="h-fit p-4 md:p-6">
+    <div className="grid gap-6 xl:grid-cols-[240px_minmax(0,1fr)_320px]">
+      <Card className="order-2 h-fit p-4 md:p-6 xl:order-1">
         <div className="mb-4 text-xl font-bold text-brand-text">旅ノートの構成</div>
         <div className="space-y-2">
           {[
@@ -138,7 +274,10 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
           ].map(([label, Icon, active]) => {
             const TypedIcon = Icon as typeof CheckCircle2;
             return (
-              <div key={label as string} className={`flex items-center gap-3 rounded-2xl px-4 py-4 ${active ? "bg-[#FFECA4] font-bold" : "hover:bg-brand-bg"}`}>
+              <div
+                key={label as string}
+                className={`flex items-center gap-3 rounded-2xl px-4 py-4 ${active ? "bg-[#FFECA4] font-bold" : "hover:bg-brand-bg"}`}
+              >
                 <TypedIcon className="h-5 w-5 text-brand-text" />
                 <span>{label as string}</span>
               </div>
@@ -147,48 +286,84 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
         </div>
       </Card>
 
-      <Card className="p-6 md:p-8">
+      <Card className="order-1 p-5 md:p-8 xl:order-2">
         <div className="space-y-2">
-          <h1 className="font-accent text-4xl font-bold text-brand-text">{pageTitle}</h1>
-          <p className="text-brand-sub">保存すると SQLite に登録され、一覧や詳細へ即時反映されます。</p>
+          <h1 className="font-accent text-3xl font-bold text-brand-text md:text-4xl">{pageTitle}</h1>
+          <p className="text-sm leading-7 text-brand-sub md:text-base">
+            保存すると一覧や詳細へすぐ反映されます。スマホからでも気軽に残せるよう、必要な項目だけに絞っています。
+          </p>
         </div>
-        <form className="mt-8 grid gap-6" action={submit}>
+
+        <form
+          className="mt-8 grid gap-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submit();
+          }}
+        >
           <Field label="旅のタイトル">
-            <input name="title" required defaultValue={initialNote?.title ?? ""} placeholder="旅のタイトルを入力" className="h-14 w-full rounded-2xl border border-brand-border px-4 outline-none" />
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              required
+              placeholder="旅のタイトルを入力"
+              className="h-14 w-full rounded-2xl border border-brand-border px-4 outline-none"
+            />
           </Field>
+
           <div className="grid gap-6 md:grid-cols-2">
             <Field label="旅行開始日">
-              <input name="startDate" type="date" required defaultValue={initialNote?.startDate ?? ""} className="h-14 w-full rounded-2xl border border-brand-border px-4" />
+              <input
+                value={startDate}
+                onChange={(event) => setStartDate(event.target.value)}
+                type="date"
+                required
+                className="h-14 w-full rounded-2xl border border-brand-border px-4"
+              />
             </Field>
             <Field label="旅行終了日">
-              <input name="endDate" type="date" required defaultValue={initialNote?.endDate ?? ""} className="h-14 w-full rounded-2xl border border-brand-border px-4" />
+              <input
+                value={endDate}
+                onChange={(event) => setEndDate(event.target.value)}
+                type="date"
+                required
+                className="h-14 w-full rounded-2xl border border-brand-border px-4"
+              />
             </Field>
           </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            <Field label="エリア">
-              <select name="area" defaultValue={initialNote?.area ?? ""} className="h-14 w-full rounded-2xl border border-brand-border px-4">
-                <option value="" disabled>
-                  エリアを選択
+
+          <Field label="都道府県">
+            <select
+              value={prefecture}
+              onChange={(event) => setPrefecture(event.target.value)}
+              required
+              className="h-14 w-full rounded-2xl border border-brand-border px-4"
+            >
+              <option value="" disabled>
+                都道府県を選択
+              </option>
+              {prefectures.map((item) => (
+                <option key={item} value={item}>
+                  {item}
                 </option>
-                {["北海道・東北", "関東", "中部", "近畿", "中国・四国", "九州・沖縄"].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="都道府県・地域">
-              <input name="prefecture" required defaultValue={initialNote?.prefecture ?? ""} placeholder="都道府県・地域を入力" className="h-14 w-full rounded-2xl border border-brand-border px-4" />
-            </Field>
-          </div>
+              ))}
+            </select>
+          </Field>
+
           <Field label="旅行スタイル">
             <div className="flex flex-wrap gap-3">
-              {["ひとり旅", "観光・街歩き", "カフェ巡り", "家族旅行", "温泉", "自然"].map((item) => {
+              {["ひとり旅", "観光・街歩き", "カフェ巡り", "家族旅行", "温泉", "自然", "仕事", "散歩"].map((item) => {
                 const active = style.includes(item);
                 return (
                   <button
                     key={item}
                     type="button"
-                    onClick={() => setStyle((prev) => (prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item]))}
-                    className={`rounded-full border px-4 py-3 text-sm ${active ? "border-[#E7BA00] bg-[#FFF7D5] font-bold" : "border-brand-border bg-white"}`}
+                    onClick={() =>
+                      setStyle((prev) => (prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item]))
+                    }
+                    className={`rounded-full border px-4 py-3 text-sm ${
+                      active ? "border-[#E7BA00] bg-[#FFF7D5] font-bold" : "border-brand-border bg-white"
+                    }`}
                   >
                     {item}
                   </button>
@@ -196,49 +371,78 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
               })}
             </div>
           </Field>
+
           <Field label="同行者">
-            <div className="grid gap-3 md:grid-cols-5">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
               {["ひとり", "家族", "友人", "カップル", "その他"].map((item) => (
                 <button
                   key={item}
                   type="button"
                   onClick={() => setCompanions(item)}
-                  className={`h-12 rounded-2xl border px-4 text-sm ${companions === item ? "border-[#E7BA00] bg-[#FFF7D5] font-bold" : "border-brand-border"}`}
+                  className={`h-12 rounded-2xl border px-4 text-sm ${
+                    companions === item ? "border-[#E7BA00] bg-[#FFF7D5] font-bold" : "border-brand-border"
+                  }`}
                 >
                   {item}
                 </button>
               ))}
             </div>
           </Field>
-          <Field label="旅のテーマ">
-            <div className="flex flex-wrap gap-3">
-              {["神社・お寺巡り", "カフェ巡り", "歴史探訪", "癒しの旅", "写真旅", "ごはん"].map((item) => {
-                const active = theme.includes(item);
-                return (
+
+          <Field label="旅テーマ">
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  value={themeInput}
+                  onChange={(event) => setThemeInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === "," || event.key === "、") {
+                      event.preventDefault();
+                      addThemeValue(themeInput);
+                    }
+                  }}
+                  onBlur={() => {
+                    if (themeInput.trim()) addThemeValue(themeInput);
+                  }}
+                  className="h-12 flex-1 rounded-2xl border border-brand-border px-4"
+                  placeholder="例: 神社巡り、朝カフェ、出張"
+                />
+                <button
+                  type="button"
+                  onClick={() => addThemeValue(themeInput)}
+                  className="rounded-2xl border border-brand-border px-5 text-sm font-bold text-brand-text"
+                >
+                  タグ化する
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {theme.map((item) => (
                   <button
                     key={item}
                     type="button"
-                    onClick={() => setTheme((prev) => (prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item]))}
-                    className={`rounded-full border px-4 py-3 text-sm ${active ? "border-[#E7BA00] bg-[#FFF7D5] font-bold" : "border-brand-border bg-white"}`}
+                    onClick={() => setTheme((prev) => prev.filter((value) => value !== item))}
+                    className="rounded-full bg-[#FFF7D5] px-4 py-2 text-sm font-medium text-brand-text"
                   >
-                    {item}
+                    #{item} ×
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </Field>
+
           <Field label="旅の一言メモ">
             <textarea
-              name="summary"
               required
-              defaultValue={initialNote?.summary ?? ""}
+              value={summary}
+              onChange={(event) => setSummary(event.target.value)}
               placeholder="この旅で残しておきたいことを書いてみましょう"
               className="min-h-32 w-full rounded-2xl border border-brand-border px-4 py-4 outline-none"
             />
           </Field>
+
           <Field label="表紙写真">
             <div className="space-y-4">
-              <div className="relative aspect-[16/6] overflow-hidden rounded-[24px]">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-[24px]">
                 <Image src={coverImage} alt="cover" fill className="object-cover" />
               </div>
               <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-brand-border px-4 py-3 text-sm font-bold text-brand-text">
@@ -246,20 +450,37 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                 画像をアップロード
                 <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </label>
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
                 {coverSamples.map((sample) => (
-                  <button key={sample} type="button" onClick={() => setCoverImage(sample)} className={`relative aspect-[4/3] overflow-hidden rounded-2xl border ${coverImage === sample ? "border-brand-yellow" : "border-brand-border"}`}>
+                  <button
+                    key={sample}
+                    type="button"
+                    onClick={() => setCoverImage(sample)}
+                    className={`relative aspect-[4/3] overflow-hidden rounded-2xl border ${
+                      coverImage === sample ? "border-brand-yellow" : "border-brand-border"
+                    }`}
+                  >
                     <Image src={sample} alt="sample" fill className="object-cover" />
                   </button>
                 ))}
               </div>
             </div>
           </Field>
+
           <Field label="訪れた場所">
             <div className="space-y-4">
-              <div className="flex gap-3">
-                <input value={spotInput} onChange={(e) => setSpotInput(e.target.value)} className="h-12 flex-1 rounded-2xl border border-brand-border px-4" placeholder="例: 奈良公園" />
-                <button type="button" onClick={addSpot} className="rounded-2xl border border-brand-border px-5 text-sm font-bold text-brand-text">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  value={spotInput}
+                  onChange={(event) => setSpotInput(event.target.value)}
+                  className="h-12 flex-1 rounded-2xl border border-brand-border px-4"
+                  placeholder="例: 奈良公園"
+                />
+                <button
+                  type="button"
+                  onClick={addSpot}
+                  className="rounded-2xl border border-brand-border px-5 text-sm font-bold text-brand-text"
+                >
                   追加
                 </button>
               </div>
@@ -277,20 +498,19 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
               </div>
             </div>
           </Field>
+
           <Field label="旅の記録">
             <div className="space-y-6">
               {days.map((day, dayIndex) => (
                 <div key={`${day.day}-${dayIndex}`} className="rounded-[24px] border border-brand-border p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <div className="text-xl font-bold text-brand-text">{day.day}日目</div>
+                    <div className="text-sm font-bold text-brand-sub">旅の記録</div>
                     {days.length > 1 ? (
                       <button
                         type="button"
                         onClick={() =>
                           setDays((prev) =>
-                            prev
-                              .filter((_, index) => index !== dayIndex)
-                              .map((item, index) => ({ ...item, day: index + 1 }))
+                            prev.filter((_, index) => index !== dayIndex).map((item, index) => ({ ...item, day: index + 1 }))
                           )
                         }
                         className="rounded-full p-2 text-brand-sub hover:bg-brand-bg"
@@ -302,19 +522,19 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                   <div className="grid gap-4">
                     <input
                       value={day.date}
-                      onChange={(e) => updateDay(dayIndex, { date: e.target.value })}
+                      onChange={(event) => updateDay(dayIndex, { date: event.target.value })}
                       className="h-12 rounded-2xl border border-brand-border px-4"
-                      placeholder="2024/05/10"
+                      placeholder="2026/05/10"
                     />
                     <input
                       value={day.title}
-                      onChange={(e) => updateDay(dayIndex, { title: e.target.value })}
+                      onChange={(event) => updateDay(dayIndex, { title: event.target.value })}
                       className="h-12 rounded-2xl border border-brand-border px-4"
                       placeholder="その日のタイトル"
                     />
                     <textarea
                       value={day.body}
-                      onChange={(e) => updateDay(dayIndex, { body: e.target.value })}
+                      onChange={(event) => updateDay(dayIndex, { body: event.target.value })}
                       className="min-h-24 rounded-2xl border border-brand-border px-4 py-3"
                       placeholder="その日の出来事やメモ"
                     />
@@ -326,9 +546,9 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                           </div>
                           <input
                             value={photo}
-                            onChange={(e) =>
+                            onChange={(event) =>
                               updateDay(dayIndex, {
-                                photos: day.photos.map((item, idx) => (idx === photoIndex ? e.target.value : item))
+                                photos: day.photos.map((item, idx) => (idx === photoIndex ? event.target.value : item))
                               })
                             }
                             className="h-11 w-full rounded-2xl border border-brand-border px-3 text-sm"
@@ -337,7 +557,12 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                           <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-brand-border px-3 py-2 text-xs font-bold text-brand-text">
                             <Camera className="h-3 w-3" />
                             画像を読み込む
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDayPhotoChange(dayIndex, photoIndex, e)} />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(event) => handleDayPhotoChange(dayIndex, photoIndex, event)}
+                            />
                           </label>
                         </div>
                       ))}
@@ -363,26 +588,26 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
               </button>
             </div>
           </Field>
+
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
-              type="submit"
-              formAction={async (formData) => {
-                await submit(formData, "draft");
-              }}
-              disabled={loading}
+              type="button"
+              onClick={() => void submit("draft")}
+              disabled={Boolean(loadingAction)}
               className="h-12 rounded-full border border-brand-border px-6 text-sm font-bold text-brand-text"
             >
-              下書きとして保存
+              {loadingAction === "draft" ? "保存中..." : "下書きとして保存"}
             </button>
-            <button disabled={loading} className="h-14 rounded-full bg-brand-yellow px-10 text-base font-bold text-brand-text">
-              {loading ? "保存中..." : isEdit ? "旅ノートを更新する" : "旅ノートを作成する"}
+            <button disabled={Boolean(loadingAction)} className="h-14 rounded-full bg-brand-yellow px-10 text-base font-bold text-brand-text">
+              {loadingAction === "submit" ? "保存中..." : isEdit ? "旅ノートを更新する" : "旅ノートを作成する"}
             </button>
           </div>
         </form>
       </Card>
 
-      <div className="space-y-6">
+      <div className="order-3 space-y-6">
         <Card className="space-y-4 p-6">
           <h3 className="text-2xl font-bold text-brand-text">旅ノートの公開設定</h3>
           {[
@@ -397,7 +622,9 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                 key={value as string}
                 type="button"
                 onClick={() => setStatus(value as Privacy)}
-                className={`w-full rounded-[24px] border p-4 text-left ${active ? "border-[#F0C100] bg-[#FFF9E5]" : "border-brand-border"}`}
+                className={`w-full rounded-[24px] border p-4 text-left ${
+                  active ? "border-[#F0C100] bg-[#FFF9E5]" : "border-brand-border"
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <TypedIcon className="h-5 w-5" />
@@ -411,9 +638,9 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
         <Card className="space-y-4 p-6">
           <h3 className="text-2xl font-bold text-brand-text">書き方のヒント</h3>
           <ul className="space-y-4 text-sm leading-7 text-brand-sub">
-            <li>最初はタイトル・期間・一言メモだけでも十分です。</li>
-            <li>作成後は共有設定ページから URL 限定公開やコメント可否を変更できます。</li>
-            <li>保存したノートはすぐに一覧と詳細ページへ反映されます。</li>
+            <li>都道府県を選ぶと、エリアは自動で整理されます。</li>
+            <li>旅テーマは自由に入力するとタグとしてまとまります。</li>
+            <li>公開設定は後から共有ページでも変更できます。</li>
           </ul>
         </Card>
       </div>
@@ -424,7 +651,7 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="grid gap-3">
-      <span className="text-base font-bold text-brand-text">{label}</span>
+      <span className="text-lg font-bold text-brand-text">{label}</span>
       {children}
     </label>
   );

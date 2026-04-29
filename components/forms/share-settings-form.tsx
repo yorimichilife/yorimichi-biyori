@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { Badge, Button, Card, SectionTitle } from "@/components/ui";
 import type { Note, Privacy } from "@/lib/types";
-import { Globe, Link2, Lock, Mail, MessageCircle, MessageSquareMore, Share2 } from "lucide-react";
+import { Globe, Instagram, Link2, Lock, Mail, MessageCircle, MessageSquareMore, Share2, X } from "lucide-react";
 
 export function ShareSettingsForm({ note }: { note: Note }) {
   const [status, setStatus] = useState<Privacy>(note.status);
@@ -13,6 +13,7 @@ export function ShareSettingsForm({ note }: { note: Note }) {
   const [allowDownload, setAllowDownload] = useState(note.share.allowDownload);
   const [expiresAt, setExpiresAt] = useState(note.share.expiresAt ?? "");
   const [message, setMessage] = useState("");
+  const [showSharePopup, setShowSharePopup] = useState(false);
 
   async function save() {
     setMessage("保存中...");
@@ -29,10 +30,59 @@ export function ShareSettingsForm({ note }: { note: Note }) {
     });
     const data = await response.json();
     setMessage(response.ok ? "共有設定を更新しました。" : data.message || "更新に失敗しました。");
+    if (response.ok && (status === "unlisted" || status === "public")) {
+      setShowSharePopup(true);
+    }
+  }
+
+  async function shareToInstagram() {
+    const sharePayload = {
+      title: note.title,
+      text: `${note.title}\n${note.share.shareUrl}`,
+      url: note.share.shareUrl
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(sharePayload);
+        return;
+      } catch {}
+    }
+
+    await navigator.clipboard.writeText(note.share.shareUrl);
+    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+    setMessage("Instagram 用にURLをコピーしました。アプリやWebの投稿画面に貼り付けてください。");
   }
 
   return (
     <>
+      {showSharePopup ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+          <Card className="w-full max-w-xl p-6 md:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-accent text-3xl font-bold text-brand-text">SNSでシェアできます</h2>
+                <p className="mt-2 text-sm leading-7 text-brand-sub">
+                  この旅ノートは {status === "public" ? "全体公開" : "URL限定公開"} になりました。気になる人に、今のうちに旅の余韻を届けましょう。
+                </p>
+              </div>
+              <button type="button" onClick={() => setShowSharePopup(false)} className="text-brand-sub">
+                ×
+              </button>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <ShareButton icon={<X className="h-6 w-6" />} label="Xに投稿" onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${note.title} ${note.share.shareUrl}`)}`, "_blank", "noopener,noreferrer")} />
+              <ShareButton icon={<Instagram className="h-6 w-6 text-[#E4405F]" />} label="Instagramへ" onClick={() => void shareToInstagram()} />
+              <ShareButton icon={<Link2 className="h-6 w-6" />} label="リンクをコピー" onClick={() => navigator.clipboard.writeText(note.share.shareUrl)} />
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button variant="secondary" onClick={() => setShowSharePopup(false)}>
+                とじる
+              </Button>
+            </div>
+          </Card>
+        </div>
+      ) : null}
       <Card className="p-6 md:p-8">
         <SectionTitle title="旅ノートを共有する" subtitle="家族や友人と旅の思い出を共有できます。" />
         <div className="mt-8 space-y-8">
@@ -70,6 +120,8 @@ export function ShareSettingsForm({ note }: { note: Note }) {
               <ShareAnchor icon={<MessageCircle className="h-6 w-6 text-[#06C755]" />} label="LINEで送る" href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(note.share.shareUrl)}`} />
               <ShareAnchor icon={<Mail className="h-6 w-6" />} label="メールで送る" href={`mailto:?subject=${encodeURIComponent(note.title)}&body=${encodeURIComponent(note.share.shareUrl)}`} />
               <ShareAnchor icon={<MessageSquareMore className="h-6 w-6 text-[#25D366]" />} label="WhatsApp" href={`https://wa.me/?text=${encodeURIComponent(`${note.title} ${note.share.shareUrl}`)}`} />
+              <ShareButton icon={<X className="h-6 w-6" />} label="Xに投稿" onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${note.title} ${note.share.shareUrl}`)}`, "_blank", "noopener,noreferrer")} />
+              <ShareButton icon={<Instagram className="h-6 w-6 text-[#E4405F]" />} label="Instagramへ" onClick={() => void shareToInstagram()} />
             </div>
           </div>
 
@@ -117,7 +169,7 @@ function ShareChoice({
 
 function OptionRow({ title, subtitle, trailing }: { title: string; subtitle?: string; trailing: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[22px] border border-brand-border px-5 py-4">
+    <div className="flex flex-col gap-4 rounded-[22px] border border-brand-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <div className="font-bold text-brand-text">{title}</div>
         {subtitle ? <div className="mt-1 text-sm text-brand-sub">{subtitle}</div> : null}
@@ -137,7 +189,7 @@ function Toggle({ enabled, onClick }: { enabled: boolean; onClick: () => void })
 
 function ShareButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick?: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="grid w-24 gap-3 justify-items-center">
+    <button type="button" onClick={onClick} className="grid w-[88px] gap-3 justify-items-center sm:w-24">
       <div className="flex h-16 w-16 items-center justify-center rounded-full border border-brand-border bg-white shadow-soft">{icon}</div>
       <span className="text-sm text-brand-text">{label}</span>
     </button>
@@ -146,7 +198,7 @@ function ShareButton({ icon, label, onClick }: { icon: ReactNode; label: string;
 
 function ShareAnchor({ icon, label, href }: { icon: ReactNode; label: string; href: string }) {
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="grid w-24 gap-3 justify-items-center">
+    <a href={href} target="_blank" rel="noreferrer" className="grid w-[88px] gap-3 justify-items-center sm:w-24">
       <div className="flex h-16 w-16 items-center justify-center rounded-full border border-brand-border bg-white shadow-soft">{icon}</div>
       <span className="text-sm text-brand-text">{label}</span>
     </a>

@@ -26,7 +26,7 @@ export default async function SharePage({
       </Link>
       {user && isNoteOwner(note, user) ? (
         <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)_330px]">
-          <Card className="h-fit p-5">
+          <Card className="order-2 h-fit p-5 xl:order-1">
             <div className="mb-4 text-2xl font-bold text-brand-text">共有する旅ノート</div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl">
               <Image src={note.coverImage} alt={note.title} fill className="object-cover" />
@@ -43,11 +43,11 @@ export default async function SharePage({
             </div>
           </Card>
 
-          <div className="space-y-6">
+          <div className="order-1 space-y-6 xl:order-2">
             <ShareSettingsForm note={note} />
           </div>
 
-          <div className="space-y-6">
+          <div className="order-3 space-y-6">
             <Card className="overflow-hidden">
               <div className="h-28 bg-[url('https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center" />
               <div className="space-y-4 p-5">
