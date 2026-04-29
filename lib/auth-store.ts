@@ -85,6 +85,17 @@ function defaultAvatar() {
   return "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80";
 }
 
+function describeSupabaseAuthError(error: { message?: string; code?: string } | null | undefined, fallback: string) {
+  const raw = `${error?.code ?? ""} ${error?.message ?? ""}`.toLowerCase();
+  if (raw.includes("relation") || raw.includes("does not exist") || raw.includes("users")) {
+    return "Supabase の users テーブルが未作成です。`scripts/supabase-schema.sql` を SQL Editor で実行してください。";
+  }
+  if (raw.includes("permission") || raw.includes("denied") || raw.includes("row-level security")) {
+    return "Supabase の権限設定で保存できません。service_role key とテーブル設定を確認してください。";
+  }
+  return fallback;
+}
+
 async function getSupabaseUserById(id: string) {
   const supabase = getSupabaseAdmin();
   if (!supabase) return null;
@@ -126,13 +137,16 @@ export async function registerUser({
 
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin()!;
-    const { data: existing } = await supabase.from("users").select("id").eq("email", normalizedEmail).maybeSingle();
+    const { data: existing, error: selectError } = await supabase.from("users").select("id").eq("email", normalizedEmail).maybeSingle();
+    if (selectError) {
+      throw new Error(describeSupabaseAuthError(selectError, "Supabase のユーザー確認に失敗しました。"));
+    }
     if (existing) {
       throw new Error("そのメールアドレスは既に登録されています。");
     }
     const { error } = await supabase.from("users").insert(user);
     if (error) {
-      throw new Error("新規登録に失敗しました。");
+      throw new Error(describeSupabaseAuthError(error, "新規登録に失敗しました。"));
     }
     return mapUser(user);
   }
@@ -162,7 +176,10 @@ export async function loginUser({
   const normalizedEmail = email.toLowerCase();
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin()!;
-    const { data } = await supabase.from("users").select("*").eq("email", normalizedEmail).maybeSingle();
+    const { data, error } = await supabase.from("users").select("*").eq("email", normalizedEmail).maybeSingle();
+    if (error) {
+      throw new Error(describeSupabaseAuthError(error, "Supabase のログイン確認に失敗しました。"));
+    }
     const row = data as UserRow | null;
     if (!row?.password_hash || !verifyPassword(password, row.password_hash)) {
       throw new Error("メールアドレスまたはパスワードが正しくありません。");
@@ -244,7 +261,7 @@ export async function upsertOAuthUser({
     };
     const { error } = await supabase.from("users").insert(user);
     if (error) {
-      throw new Error("OAuth ユーザーの保存に失敗しました。");
+      throw new Error(describeSupabaseAuthError(error, "OAuth ユーザーの保存に失敗しました。"));
     }
     return mapUser(user);
   }

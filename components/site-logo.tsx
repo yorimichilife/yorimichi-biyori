@@ -21,12 +21,12 @@ export function SiteLogo({
   return (
     <Link href={href} className={cn("inline-flex items-center", className)} aria-label="よりみち日和 ホームへ" onClick={onClick}>
       <Image
-        src="/yorimichi-logo.png"
+        src="/yorimichi-logo-transparent.png"
         alt="よりみち日和"
         width={1920}
         height={851}
         priority={size === "header"}
-        className={cn(imageClass, "object-contain")}
+        className={cn(imageClass, "object-contain mix-blend-multiply")}
       />
     </Link>
   );
