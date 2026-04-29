@@ -148,6 +148,43 @@ function toRow(note: Note) {
   };
 }
 
+function toSupabaseRow(note: Note) {
+  return {
+    id: note.id,
+    slug: note.slug,
+    user_id: note.userId ?? null,
+    title: note.title,
+    area: note.area,
+    prefecture: note.prefecture,
+    start_date: note.startDate,
+    end_date: note.endDate,
+    date_range: note.dateRange,
+    duration: note.duration,
+    style: note.style,
+    companions: note.companions,
+    theme: note.theme,
+    summary: note.summary,
+    cover_image: note.coverImage,
+    status: note.status,
+    likes: note.likes,
+    comments: note.comments,
+    saves: note.saves,
+    author_name: note.author.name,
+    author_avatar: note.author.avatar,
+    days: note.days,
+    comment_items: note.commentItems ?? [],
+    spots: note.spots,
+    tags: note.tags,
+    share_url: note.share.shareUrl,
+    share_password: note.share.password,
+    allow_comments: note.share.allowComments,
+    allow_download: note.share.allowDownload,
+    expires_at: note.share.expiresAt,
+    created_at: note.createdAt,
+    updated_at: note.updatedAt
+  };
+}
+
 function fromRow(row: NoteRow): Note {
   return {
     id: row.id,
@@ -307,7 +344,7 @@ export async function createNote(payload: NotePayload, author: AuthUser): Promis
 
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin()!;
-    const { error } = await supabase.from("notes").insert(toRow(note));
+    const { error } = await supabase.from("notes").insert(toSupabaseRow(note));
     if (error) throw new Error("旅日記の保存に失敗しました。");
     return note;
   }
@@ -356,7 +393,7 @@ export async function updateNote(id: string, payload: NotePayload): Promise<Note
 
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin()!;
-    const { error } = await supabase.from("notes").update(toRow(updated)).eq("id", id);
+    const { error } = await supabase.from("notes").update(toSupabaseRow(updated)).eq("id", id);
     if (error) throw new Error("旅日記の更新に失敗しました。");
     return updated;
   }
