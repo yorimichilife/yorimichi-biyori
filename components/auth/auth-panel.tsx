@@ -49,7 +49,7 @@ export function AuthPanel() {
   useEffect(() => {
     if (!successState) return;
     const timer = window.setTimeout(() => {
-      router.push("/notes");
+      router.push("/mypage");
     }, 1800);
     return () => window.clearTimeout(timer);
   }, [router, successState]);
@@ -114,7 +114,7 @@ export function AuthPanel() {
 
   async function oauthLogin(provider: "google" | "twitter" | "instagram") {
     setLoading(true);
-    await signIn(provider, { callbackUrl: "/notes" });
+    await signIn(provider, { callbackUrl: "/mypage" });
   }
 
   return (

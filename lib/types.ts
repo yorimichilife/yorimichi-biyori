@@ -28,6 +28,11 @@ export type AuthUser = {
   avatar: string;
 };
 
+export type AccountProfile = AuthUser & {
+  handle: string;
+  bio: string;
+};
+
 export type FollowedAuthor = {
   id: string;
   name: string;
@@ -89,3 +94,16 @@ export type NotePayload = {
 };
 
 export type SortOption = "newest" | "oldest" | "popular" | "saved";
+
+export type ExpenseCategory = "カフェ" | "旅行" | "その他";
+
+export type ExpenseItem = {
+  id: string;
+  userId: string;
+  title: string;
+  category: ExpenseCategory;
+  amount: number;
+  spentAt: string;
+  noteId?: string | null;
+  createdAt: string;
+};

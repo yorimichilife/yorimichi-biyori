@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 
 export const metadata: Metadata = {
   title: "よりみち日和",
@@ -20,6 +21,7 @@ export default function RootLayout({
         <Header />
         <main>{children}</main>
         <Footer />
+        <MobileBottomNav />
       </body>
     </html>
   );

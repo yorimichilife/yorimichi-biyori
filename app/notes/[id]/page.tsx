@@ -13,6 +13,7 @@ import { ReactionPanel } from "@/components/notes/reaction-panel";
 import { PdfButton } from "@/components/notes/pdf-button";
 import { isFollowingUser } from "@/lib/auth-store";
 import { FollowButton } from "@/components/follow-button";
+import { getReactionState } from "@/lib/mypage-store";
 
 export default async function NoteDetailPage({
   params
@@ -32,6 +33,8 @@ export default async function NoteDetailPage({
   const owner = isNoteOwner(note, user);
   const canFollow = Boolean(user?.id && note.userId && user.id !== note.userId);
   const initialFollowing = canFollow ? await isFollowingUser(user!.id, note.userId!) : false;
+  const initialLiked = user?.id ? await getReactionState(note.id, user.id, "likes") : false;
+  const initialSaved = user?.id ? await getReactionState(note.id, user.id, "saves") : false;
 
   return (
     <Container className="space-y-8 py-8 md:py-12">
@@ -154,7 +157,14 @@ export default async function NoteDetailPage({
         </div>
 
         <div className="space-y-6">
-          <ReactionPanel noteId={note.id} likes={note.likes} saves={note.saves} shareUrl={note.share.shareUrl} />
+          <ReactionPanel
+            noteId={note.id}
+            likes={note.likes}
+            saves={note.saves}
+            shareUrl={note.share.shareUrl}
+            initialLiked={initialLiked}
+            initialSaved={initialSaved}
+          />
 
           <Card className="space-y-5 p-6">
             <h3 className="text-2xl font-bold text-brand-text">旅ノートの基本情報</h3>

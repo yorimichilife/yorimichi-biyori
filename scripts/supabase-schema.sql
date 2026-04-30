@@ -3,12 +3,17 @@ create table if not exists public.users (
   name text not null,
   email text unique,
   avatar text not null,
+  handle text,
+  bio text,
   password_hash text,
   auth_provider text not null default 'credentials',
   provider_account_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.users add column if not exists handle text;
+alter table public.users add column if not exists bio text;
 
 create unique index if not exists idx_users_provider_account
 on public.users (auth_provider, provider_account_id);
@@ -61,3 +66,37 @@ create table if not exists public.notes (
 create index if not exists idx_notes_user_id on public.notes(user_id);
 create index if not exists idx_notes_status on public.notes(status);
 create index if not exists idx_notes_updated_at on public.notes(updated_at desc);
+
+create table if not exists public.note_likes (
+  user_id text not null references public.users(id) on delete cascade,
+  note_id text not null references public.notes(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, note_id)
+);
+
+create table if not exists public.note_saves (
+  user_id text not null references public.users(id) on delete cascade,
+  note_id text not null references public.notes(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, note_id)
+);
+
+create index if not exists idx_note_likes_user
+on public.note_likes (user_id, created_at desc);
+
+create index if not exists idx_note_saves_user
+on public.note_saves (user_id, created_at desc);
+
+create table if not exists public.expense_items (
+  id text primary key,
+  user_id text not null references public.users(id) on delete cascade,
+  title text not null,
+  category text not null,
+  amount integer not null,
+  spent_at date not null,
+  note_id text references public.notes(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_expense_items_user_month
+on public.expense_items (user_id, spent_at desc);

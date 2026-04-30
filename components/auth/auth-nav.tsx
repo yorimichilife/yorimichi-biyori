@@ -21,7 +21,7 @@ export function AuthNav() {
 
   if (user) {
     return (
-      <Link href="/auth" className="flex items-center gap-2 text-sm font-medium text-brand-text">
+      <Link href="/mypage" className="flex items-center gap-2 text-sm font-medium text-brand-text">
         <UserCircle2 className="h-9 w-9 text-[#8B8B8B]" />
         {user.name}
       </Link>

@@ -3,7 +3,8 @@ export const navItems = [
   { href: "/notes", label: "よりみち日記" },
   { href: "/map", label: "よりみちマップ" },
   { href: "/blog", label: "みんなのよりみち" },
-  { href: "/how-it-works", label: "使い方" }
+  { href: "/how-it-works", label: "使い方" },
+  { href: "/mypage", label: "マイページ" }
 ];
 
 export const featureItems = [
