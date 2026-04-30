@@ -20,11 +20,7 @@ import {
 import { Card } from "@/components/ui";
 import type { DayRecord, Note, Privacy } from "@/lib/types";
 
-const coverSamples = [
-  "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1400&q=80",
-  "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1400&q=80",
-  "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1400&q=80"
-];
+const coverPlaceholder = "/illustrations/card-photos.svg";
 
 const prefectures = [
   "北海道",
@@ -146,7 +142,7 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
   );
   const [summary, setSummary] = useState(initialNote?.summary ?? "");
   const [status, setStatus] = useState<Privacy>(initialNote?.status ?? "private");
-  const [coverImage, setCoverImage] = useState(initialNote?.coverImage || coverSamples[0]);
+  const [coverImage, setCoverImage] = useState(initialNote?.coverImage || coverPlaceholder);
   const [companions, setCompanions] = useState(initialNote?.companions ?? "");
   const [style, setStyle] = useState(initialNote?.style ?? []);
   const [theme, setTheme] = useState(initialNote?.theme ?? []);
@@ -447,23 +443,12 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
               </div>
               <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-brand-border px-4 py-3 text-sm font-bold text-brand-text">
                 <Camera className="h-4 w-4" />
-                画像をアップロード
+                写真を選ぶ
                 <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </label>
-              <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
-                {coverSamples.map((sample) => (
-                  <button
-                    key={sample}
-                    type="button"
-                    onClick={() => setCoverImage(sample)}
-                    className={`relative aspect-[4/3] overflow-hidden rounded-2xl border ${
-                      coverImage === sample ? "border-brand-yellow" : "border-brand-border"
-                    }`}
-                  >
-                    <Image src={sample} alt="sample" fill className="object-cover" />
-                  </button>
-                ))}
-              </div>
+              <p className="text-sm leading-7 text-brand-sub">
+                スマホでは写真アプリ、PCではフォトライブラリから表紙写真を選べます。
+              </p>
             </div>
           </Field>
 
@@ -544,19 +529,10 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-brand-bg">
                             <Image src={photo} alt={`${day.title || "day"}-${photoIndex}`} fill className="object-cover" />
                           </div>
-                          <input
-                            value={photo}
-                            onChange={(event) =>
-                              updateDay(dayIndex, {
-                                photos: day.photos.map((item, idx) => (idx === photoIndex ? event.target.value : item))
-                              })
-                            }
-                            className="h-11 w-full rounded-2xl border border-brand-border px-3 text-sm"
-                            placeholder="写真URL"
-                          />
+                          <div className="flex flex-wrap gap-2">
                           <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-brand-border px-3 py-2 text-xs font-bold text-brand-text">
                             <Camera className="h-3 w-3" />
-                            画像を読み込む
+                            写真を選ぶ
                             <input
                               type="file"
                               accept="image/*"
@@ -564,17 +540,41 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                               onChange={(event) => handleDayPhotoChange(dayIndex, photoIndex, event)}
                             />
                           </label>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateDay(dayIndex, {
+                                photos: day.photos.filter((_, idx) => idx !== photoIndex)
+                              })
+                            }
+                            className="inline-flex items-center gap-2 rounded-full border border-brand-border px-3 py-2 text-xs font-bold text-brand-sub"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            削除
+                          </button>
+                          </div>
                         </div>
                       ))}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => updateDay(dayIndex, { photos: [...day.photos, coverImage] })}
-                      className="inline-flex w-fit items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-text"
-                    >
+                    <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-text">
                       <Plus className="h-4 w-4" />
                       写真を追加
-                    </button>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            if (typeof reader.result !== "string") return;
+                            updateDay(dayIndex, { photos: [...day.photos, reader.result] });
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </label>
                   </div>
                 </div>
               ))}
