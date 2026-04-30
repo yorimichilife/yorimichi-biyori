@@ -8,6 +8,19 @@ import type { Note, SortOption } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
+const art = {
+  branch: "/yorimichi-transparent-assets/asset-013.png",
+  coffee: "/yorimichi-transparent-assets/asset-003.png",
+  cake: "/yorimichi-transparent-assets/asset-004.png",
+  alley: "/yorimichi-transparent-assets/asset-063.png",
+  sea: "/yorimichi-transparent-assets/asset-062.png",
+  map: "/yorimichi-transparent-assets/asset-064.png",
+  diary: "/yorimichi-transparent-assets/asset-065.png",
+  flower: "/yorimichi-transparent-assets/asset-049.png",
+  dotted: "/yorimichi-transparent-assets/asset-046.png",
+  paper: "/yorimichi-transparent-assets/asset-044.png"
+} as const;
+
 export function BlogBrowser({ notes }: { notes: Note[] }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortOption>("popular");
@@ -33,16 +46,17 @@ export function BlogBrowser({ notes }: { notes: Note[] }) {
   }, [area, notes, query, sort, style]);
 
   return (
-    <section className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
+    <section className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
       <aside className="space-y-6">
         <SectionTitle
           eyebrow="PUBLIC YORIMICHI"
           title="みんなのよりみち"
           subtitle="旅の思い出や体験を綴った、素敵なよりみち日記を公開しています。行ってみたい場所や旅のヒントがきっと見つかります。"
         />
-        <Card className="overflow-hidden">
+        <Card className="paper-panel overflow-hidden border-[#EEE6D7]">
           <div className="relative aspect-[16/10] overflow-hidden bg-[#FFFDF6]">
             <Image src="/illustrations/card-route.svg" alt="みんなのよりみちのイラスト" fill className="object-cover" />
+            <Image src={art.branch} alt="" width={54} height={54} className="absolute left-4 top-4 opacity-90" />
           </div>
           <div className="border-b border-brand-border p-5">
             <div className="mb-4 text-lg font-bold">キーワード検索</div>
@@ -71,20 +85,21 @@ export function BlogBrowser({ notes }: { notes: Note[] }) {
         </Card>
       </aside>
       <div className="space-y-6">
-        <Card className="overflow-hidden">
+        <Card className="paper-panel overflow-hidden border-[#EEE6D7]">
           <div className="relative aspect-[16/7] overflow-hidden">
             <Image src="/illustrations/card-share.svg" alt="公開よりみちのメインビジュアル" fill className="object-cover" />
           </div>
-          <div className="bg-white p-8">
-            <div className="max-w-lg space-y-4">
-              <div className="flex gap-8 text-lg font-medium text-brand-text">
+          <div className="relative bg-white p-5 sm:p-8">
+            <Image src={art.paper} alt="" fill className="object-cover opacity-25" />
+            <div className="relative max-w-3xl space-y-4">
+              <div className="flex flex-wrap gap-6 text-base font-medium text-brand-text sm:gap-8 sm:text-lg">
                 {["人気", "新着", "おすすめ"].map((tab, index) => (
                   <button key={tab} onClick={() => setSort(index === 0 ? "popular" : "newest")} className={`border-b-[3px] pb-3 ${index === 0 ? "border-brand-yellow font-bold" : "border-transparent text-brand-sub"}`}>
                     {tab}
                   </button>
                 ))}
               </div>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <label className="rounded-full border border-brand-border bg-white px-5 py-3 text-sm">
                   <select value={sort} onChange={(e) => setSort(e.target.value as SortOption)} className="bg-transparent outline-none">
                     <option value="popular">人気順</option>
@@ -102,6 +117,12 @@ export function BlogBrowser({ notes }: { notes: Note[] }) {
                   </button>
                 </div>
               </div>
+              <div className="flex items-center gap-3 opacity-90">
+                <Image src={art.coffee} alt="" width={34} height={34} className="rounded-xl" />
+                <Image src={art.cake} alt="" width={34} height={34} className="rounded-xl" />
+                <Image src={art.alley} alt="" width={34} height={34} className="rounded-xl" />
+                <Image src={art.sea} alt="" width={34} height={34} className="rounded-xl" />
+              </div>
             </div>
           </div>
         </Card>
@@ -111,15 +132,25 @@ export function BlogBrowser({ notes }: { notes: Note[] }) {
               <NoteCard key={note.id} note={note} />
             ))
           ) : (
-            <Card className="col-span-full p-8">
+            <Card className="paper-panel col-span-full border-[#EEE6D7] p-6 sm:p-8">
               <div className="relative mb-5 aspect-[16/7] overflow-hidden rounded-[24px] bg-[#FFFDF6]">
                 <Image src="/illustrations/card-diary.svg" alt="公開日記がまだない状態のイラスト" fill className="object-cover" />
+              </div>
+              <div className="mb-4 flex items-center gap-3">
+                <Image src={art.diary} alt="" width={42} height={42} />
+                <Image src={art.map} alt="" width={42} height={42} />
+                <Image src={art.flower} alt="" width={22} height={22} />
               </div>
               <p className="text-sm leading-7 text-brand-sub">
                 まだ条件に合うよりみち日記がありません。新しい思い出が公開されると、ここに並びます。
               </p>
             </Card>
           )}
+        </div>
+        <div className="flex items-center justify-center gap-3 py-1">
+          <Image src={art.dotted} alt="" width={88} height={18} className="opacity-85" />
+          <Image src={art.flower} alt="" width={24} height={24} className="opacity-95" />
+          <Image src={art.dotted} alt="" width={88} height={18} className="opacity-85" />
         </div>
       </div>
     </section>

@@ -1,11 +1,23 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Compass, Grid2X2, List, Search, SlidersHorizontal } from "lucide-react";
 import { NoteCard } from "@/components/note-card";
 import { Badge, Button } from "@/components/ui";
 import type { Note, SortOption } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+const art = {
+  branch: "/yorimichi-transparent-assets/asset-013.png",
+  coffee: "/yorimichi-transparent-assets/asset-003.png",
+  map: "/yorimichi-transparent-assets/asset-018.png",
+  diary: "/yorimichi-transparent-assets/asset-065.png",
+  avatar: "/yorimichi-transparent-assets/asset-054.png",
+  dotted: "/yorimichi-transparent-assets/asset-046.png",
+  flower: "/yorimichi-transparent-assets/asset-049.png",
+  paper: "/yorimichi-transparent-assets/asset-044.png"
+} as const;
 
 export function NotesBrowser({ notes }: { notes: Note[] }) {
   const [query, setQuery] = useState("");
@@ -41,7 +53,10 @@ export function NotesBrowser({ notes }: { notes: Note[] }) {
     <>
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-2">
-          <div className="font-accent text-3xl font-bold text-brand-text md:text-4xl">よりみち日記</div>
+          <div className="flex items-center gap-2">
+            <Image src={art.branch} alt="" width={26} height={26} className="opacity-80" />
+            <div className="font-accent text-3xl font-bold text-brand-text md:text-4xl">よりみち日記</div>
+          </div>
           <p className="text-sm leading-7 text-brand-sub md:text-base">
             旅の途中で出会った風景や気持ちを、日記のようにやさしく残していけます。
           </p>
@@ -70,7 +85,24 @@ export function NotesBrowser({ notes }: { notes: Note[] }) {
         </div>
       </div>
 
-      <div className="mt-8 rounded-[28px] border border-brand-border p-5 md:p-6">
+      <div className="paper-panel mt-8 overflow-hidden rounded-[28px] border border-brand-border p-4 md:p-6">
+        <div className="relative mb-6 overflow-hidden rounded-[26px] border border-[#EEE6D7] bg-[#FFFDF7] px-4 py-5 sm:px-6">
+          <Image src={art.paper} alt="" fill className="object-cover opacity-30" />
+          <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl space-y-2">
+              <div className="text-sm font-bold tracking-[0.18em] text-[#8C6E4A]">DIARY OVERVIEW</div>
+              <p className="text-sm leading-7 text-brand-sub sm:text-base">
+                自分のよりみちを、やわらかなカードで一覧できます。公開状態や気分ごとの違いも、ひと目で振り返れます。
+              </p>
+            </div>
+            <div className="flex items-center gap-3 self-start rounded-[24px] bg-white/90 px-4 py-3 shadow-sm">
+              <Image src={art.coffee} alt="" width={34} height={34} className="rounded-xl" />
+              <Image src={art.map} alt="" width={34} height={34} className="rounded-xl" />
+              <Image src={art.diary} alt="" width={34} height={34} className="rounded-xl" />
+            </div>
+          </div>
+        </div>
+
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-5 text-sm font-medium md:gap-8 md:text-lg">
             {["すべて", "公開中", "URL限定公開", "非公開", "下書き"].map((item) => (
@@ -90,25 +122,32 @@ export function NotesBrowser({ notes }: { notes: Note[] }) {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="rounded-3xl bg-brand-bg p-8 text-sm leading-7 text-brand-sub">
-            まだ条件に合うよりみち日記がありません。新しい日記を書いて、次の思い出をここに育ててみましょう。
-          </div>
-        ) : (
-          <div className={layout === "grid" ? "grid gap-5 lg:grid-cols-2 xl:grid-cols-3" : "grid gap-5"}>
-            {filtered.map((note) => (
-              <div key={note.id} className={layout === "list" ? "max-w-none" : ""}>
+            <div className="rounded-3xl bg-brand-bg p-6 text-sm leading-7 text-brand-sub sm:p-8">
+              <Image src={art.avatar} alt="" width={48} height={48} className="mb-3" />
+              まだ条件に合うよりみち日記がありません。新しい日記を書いて、次の思い出をここに育ててみましょう。
+            </div>
+          ) : (
+            <div className={layout === "grid" ? "grid gap-5 lg:grid-cols-2 xl:grid-cols-3" : "grid gap-5"}>
+              {filtered.map((note) => (
+                <div key={note.id} className={layout === "list" ? "max-w-none" : ""}>
                 <NoteCard note={note} />
               </div>
             ))}
           </div>
         )}
 
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
           <Badge tone="gray">表示件数 {filtered.length}</Badge>
           <Badge tone="gray">検索語: {query || "なし"}</Badge>
-          <Button href="/map" variant="ghost" className="h-10 px-4 text-sm">
-            よりみちマップへ
-          </Button>
+          </div>
+          <div className="flex items-center gap-3">
+            <Image src={art.dotted} alt="" width={86} height={18} className="hidden sm:block opacity-80" />
+            <Button href="/map" variant="ghost" className="h-10 px-4 text-sm">
+              よりみちマップへ
+            </Button>
+            <Image src={art.flower} alt="" width={24} height={24} className="opacity-90" />
+          </div>
         </div>
       </div>
     </>
