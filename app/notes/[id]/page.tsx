@@ -38,12 +38,12 @@ export default async function NoteDetailPage({
 
   return (
     <Container className="space-y-8 py-8 md:py-12">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link href={owner ? "/notes" : "/blog"} className="text-sm font-medium text-brand-sky">
           ← {owner ? "よりみち日記に戻る" : "みんなのよりみちに戻る"}
         </Link>
-        <div className="flex gap-3">
-          {owner ? <Button variant="secondary" href={`/notes/${note.id}/edit`}>編集する</Button> : null}
+        <div className="flex w-full gap-3 sm:w-auto">
+          {owner ? <Button variant="secondary" href={`/notes/${note.id}/edit`} className="flex-1 sm:flex-none">編集する</Button> : null}
           <button className="flex h-12 w-12 items-center justify-center rounded-full border border-brand-border bg-white">
             …
           </button>
@@ -57,17 +57,17 @@ export default async function NoteDetailPage({
           </div>
           <Badge>{note.status === "unlisted" ? "URL限定公開" : note.status === "public" ? "公開中" : note.status === "draft" ? "下書き" : "非公開"}</Badge>
           <div className="space-y-4">
-            <h1 className="font-accent text-4xl font-bold text-brand-text md:text-5xl">{note.title}</h1>
+            <h1 className="font-accent text-[2rem] font-bold text-brand-text md:text-5xl">{note.title}</h1>
             <p className="text-lg leading-8 text-brand-sub">{note.summary}</p>
             <div className="flex flex-wrap gap-3">
-              <Button href="/map" variant="secondary">
+              <Button href="/map" variant="secondary" className="w-full sm:w-auto">
                 よりみちマップを見る
               </Button>
               {canFollow ? (
                 <FollowButton followingId={note.userId!} initialFollowing={initialFollowing} />
               ) : null}
               {owner ? (
-                <Button href={`/notes/${note.id}/share`} variant="ghost">
+                <Button href={`/notes/${note.id}/share`} variant="ghost" className="w-full sm:w-auto">
                   共有設定を開く
                 </Button>
               ) : null}

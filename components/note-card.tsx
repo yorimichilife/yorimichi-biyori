@@ -28,7 +28,15 @@ const art = {
   tape: "/yorimichi-transparent-assets/asset-043.png"
 } as const;
 
-export function NoteCard({ note, href = `/notes/${note.id}` }: { note: Note; href?: string }) {
+export function NoteCard({
+  note,
+  href = `/notes/${note.id}`,
+  actionSlot
+}: {
+  note: Note;
+  href?: string;
+  actionSlot?: ReactNode;
+}) {
   const status = statusMap[note.status];
   const sticker =
     note.style.includes("カフェ")
@@ -105,6 +113,7 @@ export function NoteCard({ note, href = `/notes/${note.id}` }: { note: Note; hre
             </span>
           </div>
         </div>
+        {actionSlot ? <div className="flex flex-wrap gap-2 border-t border-[#F0E5D5] pt-3">{actionSlot}</div> : null}
         <div className="flex items-center justify-between rounded-[22px] border border-[#F0E5D5] bg-[#FFFDF7] px-3 py-2">
           <div className="flex items-center gap-2 text-xs text-brand-sub sm:text-sm">
             <Image src={art.flowerCircle} alt="" width={18} height={18} className="opacity-85" />

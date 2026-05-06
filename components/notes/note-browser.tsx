@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Compass, Grid2X2, List, Search, SlidersHorizontal } from "lucide-react";
 import { NoteCard } from "@/components/note-card";
@@ -130,11 +131,29 @@ export function NotesBrowser({ notes }: { notes: Note[] }) {
             <div className={layout === "grid" ? "grid gap-5 lg:grid-cols-2 xl:grid-cols-3" : "grid gap-5"}>
               {filtered.map((note) => (
                 <div key={note.id} className={layout === "list" ? "max-w-none" : ""}>
-                <NoteCard note={note} />
-              </div>
-            ))}
-          </div>
-        )}
+                  <NoteCard
+                    note={note}
+                    actionSlot={
+                      <>
+                        <Link
+                          href={`/notes/${note.id}/edit`}
+                          className="inline-flex h-10 items-center justify-center rounded-full border border-brand-border px-4 text-sm font-medium text-brand-text transition hover:bg-[#FFF7D5]"
+                        >
+                          編集する
+                        </Link>
+                        <Link
+                          href={`/notes/${note.id}/share`}
+                          className="inline-flex h-10 items-center justify-center rounded-full border border-brand-border px-4 text-sm font-medium text-brand-text transition hover:bg-[#FFF7D5]"
+                        >
+                          共有設定
+                        </Link>
+                      </>
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-3">

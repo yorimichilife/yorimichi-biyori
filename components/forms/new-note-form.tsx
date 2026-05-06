@@ -255,8 +255,8 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[240px_minmax(0,1fr)_320px]">
-      <Card className="order-2 h-fit p-4 md:p-6 xl:order-1">
+    <div className="grid gap-4 lg:gap-6 xl:grid-cols-[240px_minmax(0,1fr)_320px]">
+      <Card className="order-3 hidden h-fit p-4 md:p-6 xl:order-1 xl:block">
         <div className="mb-4 text-xl font-bold text-brand-text">旅ノートの構成</div>
         <div className="space-y-2">
           {[
@@ -282,9 +282,9 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
         </div>
       </Card>
 
-      <Card className="order-1 p-5 md:p-8 xl:order-2">
+      <Card className="order-1 p-4 sm:p-5 md:p-8 xl:order-2">
         <div className="space-y-2">
-          <h1 className="font-accent text-3xl font-bold text-brand-text md:text-4xl">{pageTitle}</h1>
+          <h1 className="font-accent text-[2rem] font-bold text-brand-text md:text-4xl">{pageTitle}</h1>
           <p className="text-sm leading-7 text-brand-sub md:text-base">
             保存すると一覧や詳細へすぐ反映されます。スマホからでも気軽に残せるよう、必要な項目だけに絞っています。
           </p>
@@ -369,7 +369,7 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
           </Field>
 
           <Field label="同行者">
-            <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
               {["ひとり", "家族", "友人", "カップル", "その他"].map((item) => (
                 <button
                   key={item}
@@ -487,8 +487,8 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
           <Field label="旅の記録">
             <div className="space-y-6">
               {days.map((day, dayIndex) => (
-                <div key={`${day.day}-${dayIndex}`} className="rounded-[24px] border border-brand-border p-5">
-                  <div className="mb-4 flex items-center justify-between">
+                <div key={`${day.day}-${dayIndex}`} className="rounded-[24px] border border-brand-border p-4 sm:p-5">
+                  <div className="mb-4 flex items-center justify-between gap-3">
                     <div className="text-sm font-bold text-brand-sub">旅の記録</div>
                     {days.length > 1 ? (
                       <button
@@ -523,7 +523,7 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
                       className="min-h-24 rounded-2xl border border-brand-border px-4 py-3"
                       placeholder="その日の出来事やメモ"
                     />
-                    <div className="grid gap-3 md:grid-cols-2">
+                    <div className="grid gap-3 sm:grid-cols-2">
                       {day.photos.map((photo, photoIndex) => (
                         <div key={`${photoIndex}-${photo}`} className="space-y-3 rounded-2xl border border-brand-border p-3">
                           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-brand-bg">
@@ -591,7 +591,7 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <div className="sticky bottom-[88px] z-20 -mx-4 flex flex-col gap-3 border-t border-brand-border bg-white/95 px-4 pb-2 pt-4 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => void submit("draft")}
@@ -607,8 +607,8 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
         </form>
       </Card>
 
-      <div className="order-3 space-y-6">
-        <Card className="space-y-4 p-6">
+      <div className="order-2 space-y-4 xl:order-3 xl:space-y-6">
+        <Card className="space-y-4 p-4 sm:p-6">
           <h3 className="text-2xl font-bold text-brand-text">旅ノートの公開設定</h3>
           {[
             ["private", "非公開", Lock, "自分だけが閲覧できます"],
@@ -635,7 +635,7 @@ export function NewNoteForm({ initialNote }: { initialNote?: Note }) {
             );
           })}
         </Card>
-        <Card className="space-y-4 p-6">
+        <Card className="space-y-4 p-4 sm:p-6">
           <h3 className="text-2xl font-bold text-brand-text">書き方のヒント</h3>
           <ul className="space-y-4 text-sm leading-7 text-brand-sub">
             <li>都道府県を選ぶと、エリアは自動で整理されます。</li>

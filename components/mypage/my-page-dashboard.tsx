@@ -619,35 +619,53 @@ function StatCell({ label, value, unit }: { label: string; value: number; unit: 
 
 function DiaryListItem({ note, sticker }: { note: Note; sticker: string }) {
   return (
-    <Link href={`/notes/${note.id}`} className="flex gap-3 rounded-[24px] border border-brand-border bg-white p-3 transition hover:bg-[#FFFDF7] sm:gap-4">
-      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl">
-        <Image src={note.coverImage} alt={note.title} fill className="object-cover" />
-      </div>
-      <div className="min-w-0 flex-1 space-y-2">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="flex flex-wrap gap-2">
-            {(note.style.length ? note.style : ["日常"]).slice(0, 2).map((item) => (
-              <Badge key={item} tone="gray">
-                {item}
-              </Badge>
-            ))}
+    <div className="rounded-[24px] border border-brand-border bg-white p-3 transition hover:bg-[#FFFDF7] sm:p-4">
+      <div className="flex gap-3 sm:gap-4">
+        <Link href={`/notes/${note.id}`} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl">
+          <Image src={note.coverImage} alt={note.title} fill className="object-cover" />
+        </Link>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              {(note.style.length ? note.style : ["日常"]).slice(0, 2).map((item) => (
+                <Badge key={item} tone="gray">
+                  {item}
+                </Badge>
+              ))}
+            </div>
+            <Image src={sticker} alt="" width={28} height={28} className="opacity-90" />
           </div>
-          <Image src={sticker} alt="" width={28} height={28} className="opacity-90" />
-        </div>
-        <div className="line-clamp-2 text-base font-bold leading-tight text-brand-text sm:text-xl">{note.title}</div>
-        <div className="flex flex-wrap items-center gap-3 text-sm text-brand-sub">
-          <span>{note.startDate.replaceAll("-", ".")}</span>
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="h-4 w-4" />
-            {note.prefecture}
-          </span>
-          <span className="inline-flex items-center gap-1 text-[#D86B55]">
-            <Heart className="h-4 w-4 fill-current" />
-            {note.likes}
-          </span>
+          <Link href={`/notes/${note.id}`} className="block line-clamp-2 text-base font-bold leading-tight text-brand-text sm:text-xl">
+            {note.title}
+          </Link>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-brand-sub">
+            <span>{note.startDate.replaceAll("-", ".")}</span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-4 w-4" />
+              {note.prefecture}
+            </span>
+            <span className="inline-flex items-center gap-1 text-[#D86B55]">
+              <Heart className="h-4 w-4 fill-current" />
+              {note.likes}
+            </span>
+          </div>
         </div>
       </div>
-    </Link>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link
+          href={`/notes/${note.id}/edit`}
+          className="inline-flex h-10 items-center justify-center rounded-full border border-brand-border px-4 text-sm font-medium text-brand-text transition hover:bg-[#FFF7D5]"
+        >
+          編集する
+        </Link>
+        <Link
+          href={`/notes/${note.id}/share`}
+          className="inline-flex h-10 items-center justify-center rounded-full border border-brand-border px-4 text-sm font-medium text-brand-text transition hover:bg-[#FFF7D5]"
+        >
+          共有設定
+        </Link>
+      </div>
+    </div>
   );
 }
 
